@@ -5,32 +5,36 @@ const io = new Server(5000, {
     cors: {
         origin: "*",
         methods: ["GET", "POST"]
-    }})
+    }}
+)
 
 io.on('connection', (socket) => {
-    const client = new Client({})
+    const whatsAppClient = new Client({})
 
     socket.on("disconnect", () => {
-        client.destroy()
-        console.log("Client Destroyed")
+        whatsAppClient.removeAllListeners()
     })
 
-    try {
-        client.on('qr', qr => {
-            console.log("QR EMITTED")
-            socket.emit("qr", qr)
-        })
-    
-        client.on('ready', () => {
-            console.log("Ready")
-        })
-    
-        client.on('message', message => {
-            console.log("message")
-        })
+    socket.on("message", (to: string, message: string) => {
+        whatsAppClient.sendMessage(to, message)
+    })
 
-        client.initialize();
-    } catch(e) {
-        console.log("Error")
-    }    
+    socket.on("getChats", async () => {
+        const chats = await whatsAppClient.getChats()
+        socket.emit("chats", chats)
+    })
+
+    whatsAppClient.on('qr', qr => {
+        socket.emit("qr", qr)
+    })
+
+    whatsAppClient.on('ready', () => {
+        socket.emit("ready")
+    })
+
+    whatsAppClient.on('message', message => {
+        socket.emit("message", message)
+    })
+
+    whatsAppClient.initialize();   
 })
