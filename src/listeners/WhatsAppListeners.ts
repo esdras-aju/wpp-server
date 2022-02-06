@@ -10,7 +10,7 @@ function setListeners(socket: Socket, whatsAppClient: Client) {
         socket.emit("ready")
     })
 
-    whatsAppClient.on('message', message => {
+    whatsAppClient.on('message_create', message => {
         socket.emit("message", message)
     })
 }
