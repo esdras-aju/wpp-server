@@ -11,10 +11,12 @@ const io = new Server(5000, {
 )
 
 io.on('connection', (socket) => {
-    const whatsAppClient = new Client({})
+    let whatsAppClient = new Client({})
 
     clientListeners.setListeners(socket, whatsAppClient)
     whatsAppListeners.setListeners(socket, whatsAppClient)
 
-    whatsAppClient.initialize();
+    whatsAppClient.initialize().catch((reason)=>{
+        console.warn("whatsAppClient.initialize() > Something went wrong!")
+    });
 })

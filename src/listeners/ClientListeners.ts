@@ -3,11 +3,17 @@ import { Client } from "whatsapp-web.js";
 
 function setListeners(socket: Socket, whatsAppClient: Client) {
     socket.on("disconnect", () => {
-        whatsAppClient.removeAllListeners()
+        socket.removeAllListeners()
+        whatsAppClient.destroy()
     })
 
-    socket.on("message", (to: string, message: string) => {
-        whatsAppClient.sendMessage(to, message)
+    socket.on("message", (message: {to: string, value: string}) => {
+        whatsAppClient.sendMessage(message.to, message.value)
+    })
+
+    socket.on("getChatById", async (id: string) => {
+        const chat = await whatsAppClient.getChatById(id)
+        socket.emit("chat", chat)
     })
 
     socket.on("getChats", async () => {
